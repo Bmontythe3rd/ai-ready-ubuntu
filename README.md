@@ -1,6 +1,6 @@
 # AI-ready Ubuntu
 
-`setup.sh` turns a fresh Ubuntu Server 22.04 or 24.04 machine into a local AI host. It measures CPU, RAM, disk, and GPU, installs Docker, Ollama, Open WebUI, and Tailscale, and downloads only the models that hardware can run.
+`setup.sh` turns a fresh Ubuntu Server 22.04, 24.04, or 26.04 machine into a local AI host. It measures CPU, RAM, disk, and GPU, installs Docker, Ollama, Open WebUI, and Tailscale, and downloads only the models that hardware can run.
 
 Open WebUI is the browser UI (the project sometimes called OpenWebAI). Ollama serves chat, code, vision, and embedding models. ComfyUI serves image generation on NVIDIA GPUs with at least 8 GB of VRAM.
 

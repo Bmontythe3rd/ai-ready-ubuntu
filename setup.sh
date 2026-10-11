@@ -77,7 +77,7 @@ refresh_plan() {
 
 require_ubuntu() {
   if [[ ! -f /etc/os-release ]]; then
-    die "This installer supports Ubuntu 22.04 and 24.04."
+    die "This installer supports Ubuntu 22.04, 24.04, and 26.04."
   fi
   local id version pretty
   # shellcheck disable=SC1091
@@ -85,9 +85,13 @@ require_ubuntu() {
   id="${ID:-}"
   version="${VERSION_ID:-}"
   pretty="${PRETTY_NAME:-unknown}"
-  if [[ "$id" != "ubuntu" || ( "$version" != "22.04" && "$version" != "24.04" ) ]]; then
-    die "This installer supports Ubuntu 22.04 and 24.04 (found ${pretty})."
+  if [[ "$id" != "ubuntu" ]]; then
+    die "This installer supports Ubuntu 22.04, 24.04, and 26.04 (found ${pretty})."
   fi
+  case "$version" in
+    22.04|24.04|26.04) ;;
+    *) die "This installer supports Ubuntu 22.04, 24.04, and 26.04 (found ${pretty})." ;;
+  esac
 }
 
 write_secret_env() {
