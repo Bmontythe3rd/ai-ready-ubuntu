@@ -1,0 +1,130 @@
+{
+  "disk_margin": 1.2,
+  "os_ram_reserve_gb": 4,
+  "min_ram_gb_for_large_models": 8,
+  "notes": "min_gb is the memory budget required to run the model, including about 2 GB of context headroom. NVIDIA budgets use GPU VRAM. AMD and CPU budgets use system RAM minus os_ram_reserve_gb.",
+  "workflows": {
+    "checkpoint": {
+      "file": "comfy/workflow-api.json",
+      "nodes": [
+        {"type": "prompt", "key": "text", "node_ids": ["6"]},
+        {"type": "negative_prompt", "key": "text", "node_ids": ["7"]},
+        {"type": "model", "key": "ckpt_name", "node_ids": ["4"]},
+        {"type": "width", "key": "width", "node_ids": ["5"]},
+        {"type": "height", "key": "height", "node_ids": ["5"]},
+        {"type": "steps", "key": "steps", "node_ids": ["3"]},
+        {"type": "seed", "key": "seed", "node_ids": ["3"]}
+      ]
+    },
+    "flux": {
+      "file": "comfy/workflow-flux-api.json",
+      "nodes": [
+        {"type": "prompt", "key": "text", "node_ids": ["4"]},
+        {"type": "model", "key": "unet_name", "node_ids": ["1"]},
+        {"type": "width", "key": "width", "node_ids": ["5"]},
+        {"type": "height", "key": "height", "node_ids": ["5"]},
+        {"type": "steps", "key": "steps", "node_ids": ["6"]},
+        {"type": "seed", "key": "seed", "node_ids": ["6"]}
+      ]
+    }
+  },
+  "tasks": {
+    "chat": [
+      {"id": "llama3.2:3b", "kind": "ollama", "min_gb": 4, "disk_gb": 2.0},
+      {"id": "qwen2.5:7b", "kind": "ollama", "min_gb": 6, "disk_gb": 4.7},
+      {"id": "qwen2.5:14b", "kind": "ollama", "min_gb": 12, "disk_gb": 9.0},
+      {"id": "qwen2.5:32b", "kind": "ollama", "min_gb": 24, "disk_gb": 20.0},
+      {"id": "llama3.3:70b", "kind": "ollama", "min_gb": 48, "disk_gb": 43.0}
+    ],
+    "code": [
+      {"id": "llama3.2:3b", "kind": "ollama", "min_gb": 4, "disk_gb": 2.0},
+      {"id": "qwen2.5-coder:7b", "kind": "ollama", "min_gb": 6, "disk_gb": 4.7},
+      {"id": "qwen2.5-coder:14b", "kind": "ollama", "min_gb": 12, "disk_gb": 9.0},
+      {"id": "qwen2.5-coder:32b", "kind": "ollama", "min_gb": 24, "disk_gb": 20.0}
+    ],
+    "vision": [
+      {"id": "qwen2.5vl:7b", "kind": "ollama", "min_gb": 8, "disk_gb": 6.0},
+      {"id": "llama3.2-vision:11b", "kind": "ollama", "min_gb": 16, "disk_gb": 8.0}
+    ],
+    "embeddings": [
+      {"id": "nomic-embed-text", "kind": "ollama", "min_gb": 1, "disk_gb": 0.3}
+    ],
+    "image": [
+      {
+        "id": "sdxl-turbo",
+        "kind": "comfyui",
+        "min_gb": 8,
+        "disk_gb": 7.0,
+        "nvidia_only": true,
+        "workflow": "checkpoint",
+        "resolution": "512x512",
+        "width": 512,
+        "height": 512,
+        "steps": 4,
+        "cfg": 1.0,
+        "sampler": "euler_ancestral",
+        "scheduler": "normal",
+        "files": [
+          {
+            "url": "https://huggingface.co/stabilityai/sdxl-turbo/resolve/main/sd_xl_turbo_1.0_fp16.safetensors",
+            "dest": "checkpoints/sd_xl_turbo_1.0_fp16.safetensors"
+          }
+        ]
+      },
+      {
+        "id": "sdxl-base",
+        "kind": "comfyui",
+        "min_gb": 12,
+        "disk_gb": 7.0,
+        "nvidia_only": true,
+        "workflow": "checkpoint",
+        "resolution": "1024x1024",
+        "width": 1024,
+        "height": 1024,
+        "steps": 25,
+        "cfg": 6.0,
+        "sampler": "euler",
+        "scheduler": "normal",
+        "files": [
+          {
+            "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors",
+            "dest": "checkpoints/sd_xl_base_1.0.safetensors"
+          }
+        ]
+      },
+      {
+        "id": "flux1-schnell",
+        "kind": "comfyui",
+        "min_gb": 16,
+        "disk_gb": 18.0,
+        "nvidia_only": true,
+        "workflow": "flux",
+        "resolution": "1024x1024",
+        "width": 1024,
+        "height": 1024,
+        "steps": 4,
+        "cfg": 1.0,
+        "sampler": "euler",
+        "scheduler": "simple",
+        "files": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/flux1-schnell/resolve/main/flux1-schnell-fp8.safetensors",
+            "dest": "diffusion_models/flux1-schnell-fp8.safetensors"
+          },
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+            "dest": "clip/clip_l.safetensors"
+          },
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors",
+            "dest": "clip/t5xxl_fp8_e4m3fn.safetensors"
+          },
+          {
+            "url": "https://huggingface.co/ffxvs/vae-flux/resolve/main/ae.safetensors",
+            "dest": "vae/ae.safetensors"
+          }
+        ]
+      }
+    ]
+  }
+}

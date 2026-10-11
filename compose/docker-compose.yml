@@ -1,0 +1,36 @@
+name: ai-ready
+
+services:
+  ollama:
+    image: __OLLAMA_IMAGE__
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: "0.0.0.0:11434"
+      OLLAMA_KEEP_ALIVE: "5m"
+    volumes:
+      - __DATA_DIR__/ollama:/root/.ollama
+    networks: [ai]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+__OLLAMA_EXTRAS__
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:8080"
+    env_file:
+      - /etc/ai-ready/openwebui.env
+    volumes:
+      - __DATA_DIR__/open-webui:/app/backend/data
+    networks: [ai]
+__COMFY_SERVICE__
+networks:
+  ai:
+    name: ai-ready
